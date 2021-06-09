@@ -6,6 +6,7 @@ use crate::{
 use actix_casbin_auth::CasbinVals;
 use actix_service::{Service, Transform};
 use actix_web::{
+    body::MessageBody,
     dev::{ServiceRequest, ServiceResponse},
     http::{HeaderName, HeaderValue, Method},
     web::Data,
@@ -24,14 +25,12 @@ use std::{
 
 pub struct Authentication;
 
-impl<S, B> Transform<S> for Authentication
+impl<S, B> Transform<S, ServiceRequest> for Authentication
 where
-    S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error>
-        + 'static,
-    S::Future: 'static,
-    B: 'static,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
+    B: MessageBody,
 {
-    type Request = ServiceRequest;
+    //type Request = ServiceRequest;
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
@@ -48,14 +47,12 @@ pub struct AuthenticationMiddleware<S> {
     service: Rc<RefCell<S>>,
 }
 
-impl<S, B> Service for AuthenticationMiddleware<S>
+impl<S, B> Service<ServiceRequest> for AuthenticationMiddleware<S>
 where
-    S: Service<Request = ServiceRequest, Response = ServiceResponse<B>, Error = Error>
-        + 'static,
-    S::Future: 'static,
-    B: 'static,
+    S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error> + 'static,
+    B: MessageBody,
 {
-    type Request = ServiceRequest;
+    //type Request = ServiceRequest;
     type Response = ServiceResponse<B>;
     type Error = Error;
     type Future = Pin<Box<dyn Future<Output = Result<Self::Response, Self::Error>>>>;
